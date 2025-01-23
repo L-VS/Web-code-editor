@@ -264,4 +264,28 @@
             optionsMenu.style.left = `${event.pageX}px`;
             optionsMenu.style.top = `${event.pageY}px`;
             optionsMenu.style.background = '#fff';
-            optionsMenu.style.border =
+            optionsMenu.style.border = '1px solid #ccc';
+            optionsMenu.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
+            optionsMenu.style.zIndex = '1000';
+
+            const deleteOption = document.createElement('div');
+            deleteOption.textContent = 'Delete';
+            deleteOption.style.padding = '8px';
+            deleteOption.style.cursor = 'pointer';
+            deleteOption.style.backgroundColor = '#f8f8f8';
+            deleteOption.addEventListener('click', () => {
+                listItem.remove();
+                optionsMenu.remove();
+            });
+
+            optionsMenu.appendChild(deleteOption);
+            document.body.appendChild(optionsMenu);
+
+            // Close the options menu if clicked outside
+            document.addEventListener('click', () => {
+                optionsMenu.remove();
+            }, { once: true });
+        }
+    </script>
+</body>
+</html>
