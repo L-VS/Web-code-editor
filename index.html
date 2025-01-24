@@ -3,19 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Code Editor</title>
-    <link rel="icon" href="LogoSite.png">
+    <title>Code Editor</title>
     <link rel="stylesheet" href="https://unpkg.com/monaco-editor/min/vs/editor/editor.main.css">
     <style>
         body {
             margin: 0;
-            padding: 0;
             font-family: Arial, sans-serif;
-        }
-
-        #editor {
-            flex-grow: 1;
-            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
         }
 
         #toolbar {
@@ -27,14 +24,18 @@
             color: white;
         }
 
+        #toolbar button, #toolbar input {
+            margin: 0 5px;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
         #toolbar button {
             background-color: #4CAF50;
-            border: none;
-            padding: 10px;
             color: white;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 14px;
         }
 
         #toolbar button:hover {
@@ -43,249 +44,443 @@
 
         #main-container {
             display: flex;
-            height: 90vh;
-        }
-
-        #preview {
             flex-grow: 1;
-            border-left: 1px solid #ccc;
-            display: none;
-            padding: 10px;
-            background-color: #f4f4f4;
-        }
-
-        .resizable {
-            resize: horizontal;
-            overflow: auto;
+            overflow: hidden;
         }
 
         #file-explorer {
-            width: 200px;
+            width: 250px;
             background-color: #1e293b;
             color: white;
-            padding: 10px;
+            overflow-y: auto;
         }
 
         #file-explorer ul {
             list-style: none;
-            padding: 0;
+            padding: 10px;
+            margin: 0;
         }
 
         #file-explorer li {
-            padding: 5px;
-            cursor: pointer;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         #file-explorer li:hover {
             background-color: #4CAF50;
         }
 
-        #language-selector {
-            margin-right: 10px;
+        #file-explorer li .delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 2px 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-left: 5px;
         }
 
-        .hidden {
-            display: none;
+        #editor-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #editor {
+            flex-grow: 1;
         }
 
         #preview-container {
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid #ccc;
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 50%;
+            border-left: 1px solid #ddd;
+            background-color: white;
+            z-index: 10;
         }
 
-        #preview-header {
-            background-color: #f4f4f4;
-            padding: 5px;
+        #preview-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #preview-toolbar {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            background-color: #2e3b4e;
+            color: white;
         }
+
+        #preview-toolbar button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #preview-toolbar button:hover {
+            background-color: #45a049;
+        }
+
+        #floating-window {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 300px;
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .floating-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .floating-btn:hover {
+            background-color: #45a049;
+        }
+
     </style>
 </head>
 <body>
     <div id="toolbar">
         <div>
-            <select id="language-selector" onchange="changeLanguage(this.value)">
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-                <option value="html">HTML</option>
-                <option value="css">CSS</option>
-                <option value="c">C</option>
-                <option value="cpp">C++</option>
-                <option value="java">Java</option>
-                <option value="php">PHP</option>
-                <option value="ruby">Ruby</option>
-                <option value="go">Go</option>
-                <option value="swift">Swift</option>
-            </select>
-            <button onclick="openFile()">Open File</button>
-            <button onclick="togglePreview()">Preview Code</button>
+            <button onclick="createNewFile()">New File</button>
+            <button onclick="saveFile()">Save File</button>
+            <button onclick="undo()">Undo</button>
+            <button onclick="redo()">Redo</button>
+            <button onclick="copyAll()">Copy All</button>
+            <button onclick="<!DOCTYPE html>
+                <html lang="fr">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Fenêtre Copilot avec Prévisualisation</title>
+                    <style>
+                        /* Styles pour la fenêtre modale */
+                        .modal {
+                            display: none; /* Masquer par défaut */
+                            position: fixed;
+                            z-index: 1;
+                            left: 0;
+                            top: 0;
+                            width: 100%;
+                            height: 100%;
+                            overflow: auto;
+                            background-color: rgb(0,0,0); /* Fond sombre */
+                            background-color: rgba(0,0,0,0.4); /* Opacité */
+                        }
+                
+                        .modal-content {
+                            display: flex;
+                            background-color: #fefefe;
+                            margin: 5% auto;
+                            padding: 10px;
+                            border: 1px solid #888;
+                            width: 80%;
+                            max-width: 1200px;
+                            border-radius: 10px;
+                            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+                            overflow: hidden;
+                        }
+                
+                        /* Style pour l'iframe (prévisualisation de la page) */
+                        .iframe-container {
+                            width: 70%; /* Prend 70% de la largeur */
+                            height: 500px;
+                            margin-right: 20px;
+                        }
+                
+                        /* Boutons */
+                        .open-btn {
+                            font-size: 16px;
+                            padding: 10px 20px;
+                            background-color: #4CAF50;
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                        }
+                
+                        .open-btn:hover {
+                            background-color: #45a049;
+                        }
+                
+                        .close-btn, .fullscreen-btn {
+                            font-size: 18px;
+                            color: #fff;
+                            background-color: #333;
+                            border: none;
+                            padding: 10px;
+                            cursor: pointer;
+                            border-radius: 5px;
+                            margin: 10px;
+                        }
+                
+                        .close-btn:hover, .fullscreen-btn:hover {
+                            background-color: #555;
+                        }
+                    </style>
+                </head>
+                <body>
+                
+                    <!-- Bouton pour ouvrir la fenêtre -->
+                    <button class="open-btn" onclick="openModal()">Ouvrir Copilot</button>
+                
+                    <!-- Fenêtre modale -->
+                    <div id="copilotModal" class="modal">
+                        <div class="modal-content">
+                            <div class="iframe-container">
+                                <!-- Iframe avec la prévisualisation du site "copilot.microsoft.com" -->
+                                <iframe id="copilotIframe" src="https://copilot.microsoft.com" width="100%" height="100%" frameborder="0"></iframe>
+                            </div>
+                            <div>
+                                <h2>Copilot - Fenêtre</h2>
+                                <p>Interagissez avec le site ci-dessus dans l'iframe. Vous pouvez également activer le mode plein écran et fermer la fenêtre.</p>
+                                <button class="close-btn" onclick="closeModal()">Fermer</button>
+                                <button class="fullscreen-btn" onclick="toggleFullscreen()">Plein écran</button>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <script>
+                        // Fonction pour ouvrir la fenêtre modale
+                        function openModal() {
+                            document.getElementById("copilotModal").style.display = "block";
+                        }
+                
+                        // Fonction pour fermer la fenêtre modale
+                        function closeModal() {
+                            document.getElementById("copilotModal").style.display = "none";
+                        }
+                
+                        // Fonction pour basculer en mode plein écran pour l'iframe
+                        function toggleFullscreen() {
+                            var iframe = document.getElementById("copilotIframe");
+                            if (iframe.requestFullscreen) {
+                                iframe.requestFullscreen();
+                            } else if (iframe.mozRequestFullScreen) { // Firefox
+                                iframe.mozRequestFullScreen();
+                            } else if (iframe.webkitRequestFullscreen) { // Chrome, Safari et Opera
+                                iframe.webkitRequestFullscreen();
+                            } else if (iframe.msRequestFullscreen) { // IE/Edge
+                                iframe.msRequestFullscreen();
+                            }
+                        }
+                
+                        // Fermer la fenêtre modale si l'utilisateur clique en dehors de celle-ci
+                        window.onclick = function(event) {
+                            var modal = document.getElementById("copilotModal");
+                            if (event.target === modal) {
+                                modal.style.display = "none";
+                            }
+                        }
+                    </script>
+                
+                </body>
+                </html>
+                </button>
         </div>
         <div>
-            <button onclick="saveFile()">Save</button>
+            <button onclick="runCode()">Run Code</button>
+            <button onclick="toggleTheme()">Toggle Theme</button>
         </div>
     </div>
 
     <div id="main-container">
-        <div id="file-explorer" class="resizable">
+        <div id="file-explorer">
             <h3>Files</h3>
-            <ul id="file-list">
-                <li onclick="createFile()">+ New File</li>
-            </ul>
+            <ul id="file-list"></ul>
         </div>
-
-        <div id="editor"></div>
-        <div id="preview-container" class="hidden">
-            <div id="preview-header">
-                <span>Live Preview</span>
-                <button onclick="togglePreview()">Close</button>
+        <div id="editor-container">
+            <div id="editor"></div>
+            <div id="preview-container">
+                <div id="preview-toolbar">
+                    <button onclick="closePreview()">Close</button>
+                    <button onclick="toggleFullscreen()">Fullscreen</button>
+                </div>
+                <iframe id="preview-frame"></iframe>
             </div>
-            <iframe id="preview" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+        <div id="copilot-container">
+            <div id="copilot-window" style="display:none;">
+                <h4>Copilot Assistant</h4>
+                <div id="copilot-content"></div>
+            </div>
         </div>
     </div>
+
+    <div id="floating-window">
+    </style>
+</head>
+<body>
+
+    <div id="editor"></div>
+
+    <div id="floating-window">
+        <button onclick="undo()">Undo</button>
+        <button onclick="redo()">Redo</button>
+        <button onclick="copyAll()">Copy All</button 
+     </div>
 
     <script src="https://unpkg.com/monaco-editor/min/vs/loader.js"></script>
     <script>
         let editor;
-        let previewVisible = false;
-        let currentLanguage = 'javascript';
+        let files = {};
+        let currentFileName = "untitled.txt";
+        const fileList = document.getElementById("file-list");
+        const previewContainer = document.getElementById("preview-container");
+        const previewFrame = document.getElementById("preview-frame");
+        const editorContainer = document.getElementById("editor-container");
+        const floatingWindow = document.getElementById("floating-window");
+        const copilotWindow = document.getElementById("copilot-window");
+        const copilotContent = document.getElementById("copilot-content");
+        let isDarkMode = true;
 
-        // Configure Monaco Editor
         require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor/min/vs' } });
-
         require(['vs/editor/editor.main'], function () {
             editor = monaco.editor.create(document.getElementById('editor'), {
-                value: '// Write your code here\n',
-                language: currentLanguage,
+                value: '// Start coding here',
+                language: 'javascript',
                 theme: 'vs-dark',
+                automaticLayout: true,
             });
         });
 
-        // Change the language of the editor based on selection
-        function changeLanguage(language) {
-            currentLanguage = language;
-            monaco.editor.setModelLanguage(editor.getModel(), language);
-        }
-
-        // Detect file language based on extension
-        function detectLanguage(fileName) {
-            const extension = fileName.split('.').pop();
-            const languageMap = {
-                js: 'javascript',
-                py: 'python',
-                html: 'html',
-                css: 'css',
-                c: 'c',
-                cpp: 'cpp',
-                java: 'java',
-                php: 'php',
-                rb: 'ruby',
-                go: 'go',
-                swift: 'swift'
-            };
-            return languageMap[extension] || 'plaintext';
-        }
-
-        // Toggle the visibility of the preview pane
-        function togglePreview() {
-            const previewContainer = document.getElementById('preview-container');
-            previewVisible = !previewVisible;
-            if (previewVisible) {
-                previewContainer.classList.remove('hidden');
-                updatePreview();
-            } else {
-                previewContainer.classList.add('hidden');
-            }
-        }
-
-        // Update the preview pane with the current code
-        function updatePreview() {
-            const preview = document.getElementById('preview');
-            if (currentLanguage === 'html') {
-                preview.srcdoc = editor.getValue();
-            } else {
-                preview.srcdoc = `<pre>${editor.getValue()}</pre>`;
-            }
-        }
-
-        // Save the current file to the user's device
-        function saveFile() {
-            const code = editor.getValue();
-            const fileExtension = {
-                javascript: 'js',
-                python: 'py',
-                html: 'html',
-                css: 'css',
-                c: 'c',
-                cpp: 'cpp',
-                java: 'java',
-                php: 'php',
-                ruby: 'rb',
-                go: 'go',
-                swift: 'swift'
-            }[currentLanguage] || 'txt';
-
-            const blob = new Blob([code], { type: `text/${currentLanguage}` });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `code.${fileExtension}`;
-            link.click();
-        }
-
-        // Create a new file
-        function createFile() {
-            const fileName = prompt('Enter file name (with extension):');
+        function createNewFile() {
+            const fileName = prompt("Enter new file name with extension (e.g., script.js):");
             if (fileName) {
-                const fileList = document.getElementById('file-list');
-                const listItem = document.createElement('li');
-                listItem.textContent = fileName;
+                files[fileName] = "";
+                currentFileName = fileName;
+                updateFileExplorer();
+                editor.setValue("");
+            }
+        }
+
+        function saveFile() {
+            const content = editor.getValue();
+            const blob = new Blob([content], { type: "text/plain" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = currentFileName;
+            a.click();
+        }
+
+        function updateFileExplorer() {
+            fileList.innerHTML = "";
+            for (const fileName in files) {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `${fileName} <button class="delete-btn" onclick="deleteFile('${fileName}')">x</button>`;
+                listItem.ondblclick = () => renameFile(fileName); // Double-click to rename
                 listItem.onclick = () => loadFile(fileName);
-                listItem.oncontextmenu = (e) => {
-                    e.preventDefault();
-                    showFileOptions(e, listItem, fileName);
-                };
                 fileList.appendChild(listItem);
             }
         }
 
-        // Load a file (placeholder logic)
         function loadFile(fileName) {
-            const language = detectLanguage(fileName);
-            changeLanguage(language);
-            editor.setValue(`// Editing ${fileName}\n`);
+            currentFileName = fileName;
+            editor.setValue(files[fileName]);
         }
 
-        // Show file options on right-click
-        function showFileOptions(event, listItem, fileName) {
-            const optionsMenu = document.createElement('div');
-            optionsMenu.style.position = 'absolute';
-            optionsMenu.style.left = `${event.pageX}px`;
-            optionsMenu.style.top = `${event.pageY}px`;
-            optionsMenu.style.background = '#fff';
-            optionsMenu.style.border = '1px solid #ccc';
-            optionsMenu.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.2)';
-            optionsMenu.style.zIndex = '1000';
+        function deleteFile(fileName) {
+            delete files[fileName];
+            updateFileExplorer();
+        }
 
-            const deleteOption = document.createElement('div');
-            deleteOption.textContent = 'Delete';
-            deleteOption.style.padding = '8px';
-            deleteOption.style.cursor = 'pointer';
-            deleteOption.style.backgroundColor = '#f8f8f8';
-            deleteOption.addEventListener('click', () => {
-                listItem.remove();
-                optionsMenu.remove();
+        function renameFile(fileName) {
+            const newFileName = prompt("Enter new file name:", fileName);
+            if (newFileName && newFileName !== fileName) {
+                files[newFileName] = files[fileName];
+                delete files[fileName];
+                currentFileName = newFileName;
+                updateFileExplorer();
+            }
+        }
+
+        function runCode() {
+            const code = editor.getValue();
+            const blob = new Blob([code], { type: "text/html" });
+            const url = URL.createObjectURL(blob);
+            previewFrame.src = url;
+            previewContainer.style.display = "block";
+        }
+
+        function closePreview() {
+            previewContainer.style.display = "none";
+        }
+
+        function toggleFullscreen() {
+            if (previewContainer.style.width === "100%") {
+                previewContainer.style.width = "50%";
+            } else {
+                previewContainer.style.width = "100%";
+            }
+        }
+
+        function toggleTheme() {
+            if (isDarkMode) {
+                monaco.editor.setTheme('vs-light');
+                isDarkMode = false;
+            } else {
+                monaco.editor.setTheme('vs-dark');
+                isDarkMode = true;
+            }
+        }
+
+        function openFloatingWindow() {
+            floatingWindow.style.display = "flex";
+        }
+
+        function closeFloatingWindow() {
+            floatingWindow.style.display = "none";
+        }
+
+        function undo() {
+            editor.trigger('keyboard', 'undo');
+        }
+
+        function redo() {
+            editor.trigger('keyboard', 'redo');
+        }
+
+        function copyAll() {
+            const content = editor.getValue();
+            navigator.clipboard.writeText(content).then(() => {
+                alert('Content copied!');
             });
-
-            optionsMenu.appendChild(deleteOption);
-            document.body.appendChild(optionsMenu);
-
-            // Close the options menu if clicked outside
-            document.addEventListener('click', () => {
-                optionsMenu.remove();
-            }, { once: true });
         }
+
+        function openCopilot() {
+            copilotWindow.style.display = "block";
+            copilotContent.innerHTML = "<p>Assistant Copilot is here to help!</p>";
+        }
+
     </script>
 </body>
 </html>
